@@ -12,6 +12,13 @@
   <!-- Meta Description -->
   <b:if cond='data:view.description'>
     <meta expr:content='data:view.description.escaped' name='description'/>
+  <b:elseif cond='data:view.isPost and data:posts'/>
+    <!-- Use first post's snippet as fallback description -->
+    <b:loop index='i' values='data:posts' var='post'>
+      <b:if cond='data:i == 0'>
+        <meta expr:content='data:post.snippet.escaped' name='description'/>
+      </b:if>
+    </b:loop>
   </b:if>
 
   <!-- Open Graph Meta Tags -->
@@ -1214,17 +1221,19 @@ main {
                   &quot;@type&quot;: &quot;Article&quot;,
                   &quot;mainEntityOfPage&quot;: {
                     &quot;@type&quot;: &quot;WebPage&quot;,
-                    &quot;@id&quot;: &quot;<data:post.url.jsonEscaped/>&quot;
+                    &quot;@id&quot;: <data:post.url.jsonEscaped/>
                   },
-                  &quot;headline&quot;: &quot;<data:post.title.jsonEscaped/>&quot;,
+                  &quot;headline&quot;: <data:post.title.jsonEscaped/>,
+                  <b:if cond='data:post.featuredImage'>
                   &quot;image&quot;: [
-                    &quot;<data:post.featuredImage.jsonEscaped/>&quot;
+                    <data:post.featuredImage.jsonEscaped/>
                   ],
-                  &quot;datePublished&quot;: &quot;<data:post.date.iso8601.jsonEscaped/>&quot;,
-                  &quot;dateModified&quot;: &quot;<data:post.lastUpdated.iso8601.jsonEscaped/>&quot;,
+                  </b:if>
+                  &quot;datePublished&quot;: &quot;<data:post.date.iso8601/>&quot;,
+                  &quot;dateModified&quot;: &quot;<data:post.lastUpdated.iso8601/>&quot;,
                   &quot;author&quot;: {
                     &quot;@type&quot;: &quot;Person&quot;,
-                    &quot;name&quot;: &quot;<data:post.author.name.jsonEscaped/>&quot;
+                    &quot;name&quot;: <data:post.author.name.jsonEscaped/>
                   }
                 }
               </script>
@@ -1247,16 +1256,16 @@ main {
                         &quot;@type&quot;: &quot;ListItem&quot;,
                         &quot;position&quot;: 1,
                         &quot;name&quot;: &quot;Home&quot;,
-                        &quot;item&quot;: &quot;<data:blog.homepageUrl.jsonEscaped/>&quot;
+                        &quot;item&quot;: <data:blog.homepageUrl.jsonEscaped/>
                       },{
                         &quot;@type&quot;: &quot;ListItem&quot;,
                         &quot;position&quot;: 2,
-                        &quot;name&quot;: &quot;<data:post.labels.first.name.jsonEscaped/>&quot;,
-                        &quot;item&quot;: &quot;<data:post.labels.first.url.jsonEscaped/>&quot;
+                        &quot;name&quot;: <data:post.labels.first.name.jsonEscaped/>,
+                        &quot;item&quot;: <data:post.labels.first.url.jsonEscaped/>
                       },{
                         &quot;@type&quot;: &quot;ListItem&quot;,
                         &quot;position&quot;: 3,
-                        &quot;name&quot;: &quot;<data:post.title.jsonEscaped/>&quot;
+                        &quot;name&quot;: <data:post.title.jsonEscaped/>
                       }]
                     }
                   </script>
@@ -1302,8 +1311,8 @@ main {
               <div id='related-posts-container' style='display:none;'/>
               <b:if cond='data:post.labels'>
                 <script>
-                  var currentPostLabel = '<data:post.labels.first.name/>';
-                  var currentPostUrl = '<data:post.url/>';
+                  var currentPostLabel = <data:post.labels.first.name.jsonEscaped/>;
+                  var currentPostUrl = <data:post.url.jsonEscaped/>;
                 </script>
               </b:if>
             </b:includable>
@@ -1367,8 +1376,8 @@ main {
         </b:section>
 
         <div class='footer-credit'>
-          <p>&#169; <script>document.write(new Date().getFullYear())</script> <data:blog.title/>. All rights reserved.</p>
-          <p>Designed by Jules.</p>
+          <p>&#169; <span id='footer-year'></span> <data:blog.title/>. All rights reserved.</p>
+          <p>Theme by Maison Édit.</p>
         </div>
       </div>
     </footer>
@@ -1377,6 +1386,12 @@ main {
   <script>
     //<![CDATA[
     document.addEventListener('DOMContentLoaded', function() {
+      // Set footer year
+      var yearSpan = document.getElementById('footer-year');
+      if (yearSpan) {
+        yearSpan.textContent = new Date().getFullYear();
+      }
+
       // Mobile Navigation Toggle
       var navToggle = document.getElementById('nav-toggle');
       var siteNav = document.getElementById('site-nav');
